@@ -9,5 +9,11 @@ Data from: https://www.themealdb.com/
 2. Build and Run to compile the project. This can be slow on the first run.
 
     ```
-    go build ./main.go && ./main
+    go run main.go
+    ```
+
+3. Alternatively, build and run the project inside of a container.
+
+    ```
+    docker build -t kuthero/foodbot . && docker run --env-file .env kuthero/foodbot
     ```
