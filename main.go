@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -8,7 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"encoding/json"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -18,8 +19,60 @@ var (
 	Token string = os.Getenv("TOKEN")
 )
 
+// Meal is a struct that holds the meal data
+type Meal struct {
+	Meals []struct {
+		Name    string `json:"strMeal"`
+		Thumb   string `json:"strMealThumb"`
+		Youtube string `json:"strYoutube"`
+	} `json:"meals"`
+}
+
+func randomMealFunc() (randomMeal Meal) {
+
+	var (
+		mealUrl string = "https://www.themealdb.com/api/json/v1/1/random.php"
+	)
+
+	// Create a new HTTP client with a timeout of 1 second
+	var mealClient = http.Client{Timeout: 10 * time.Second}
+
+	// Build a GET request to the meal API endpoint
+	req, err := http.NewRequest(http.MethodGet, mealUrl, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("User-Agent", "Discord FoodBot")
+
+	// Send the request and store the response
+	res, getErr := mealClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	// Close body
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	// Read body
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	// Unmarshal body
+	randomMeal = Meal{}
+	jsonErr := json.Unmarshal(body, &randomMeal)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+
+	return
+}
+
 func main() {
-	// Check runtime variables
+	// Check for token
 	if Token == "" {
 		log.Fatal("Token cannot be empty")
 	}
@@ -63,34 +116,12 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// If the message is "ping" reply with "Pong!"
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
-	}
 
-	// If the message is "pong" reply with "Ping!"
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
-	}
+	// If the message is "food" reply with a random dish to delight!
+	if m.Content == "food" {
 
-	// If the message is "!food" reply with a random dish to delight!
-	if m.Content == "!food" {
+		randomMeal := randomMealFunc()
 
-		// Query TheMealDB for a random dish.
-		resp, err := http.Get("https://www.themealdb.com/api/json/v1/1/random.php")
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		//We Read the response body on the line below.
-		body, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			log.Fatalln(err)
-			//Convert the body to type string
-			sb := string(body)
-			log.Printf(sb)
-		}
-
-		s.ChannelMessageSend(m.ChannelID, "Getting you food bb")
+		s.ChannelMessageSend(m.ChannelID, ""+randomMeal.Meals[0].Name+"\n"+randomMeal.Meals[0].Youtube)
 	}
 }
