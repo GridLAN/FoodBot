@@ -118,7 +118,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// If the message is "food" reply with a random dish to delight!
-	if m.Content == "food" {
+	if m.Content == "food" || m.Content == "Food" {
 
 		randomMeal := randomMealFunc()
 
