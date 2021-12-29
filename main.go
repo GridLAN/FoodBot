@@ -117,11 +117,18 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	// If the message is "food help" reply with a list of commands
+	if m.Content == ".food help" || m.Content == ".Food help" {
+
+		s.ChannelMessageSend(m.ChannelID, "Food Bot Commands:\n'.food help' - This message\n.'food random' - Random meal")
+	}
+
 	// If the message is "food" reply with a random dish to delight!
-	if m.Content == "food" || m.Content == "Food" {
+	if m.Content == ".food" || m.Content == ".Food" {
 
 		randomMeal := randomMealFunc()
 
 		s.ChannelMessageSend(m.ChannelID, ""+randomMeal.Meals[0].Name+"\n"+randomMeal.Meals[0].Thumb)
 	}
+
 }
