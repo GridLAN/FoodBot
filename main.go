@@ -122,6 +122,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		randomMeal := randomMealFunc()
 
-		s.ChannelMessageSend(m.ChannelID, ""+randomMeal.Meals[0].Name+"\n"+randomMeal.Meals[0].Youtube)
+		s.ChannelMessageSend(m.ChannelID, ""+randomMeal.Meals[0].Name+"\n"+randomMeal.Meals[0].Thumb)
 	}
 }
