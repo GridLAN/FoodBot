@@ -2,6 +2,9 @@ FROM golang:1.17 as builder
 
 WORKDIR /build
 
+# Build flag
+ENV CGO_ENABLED=0 
+
 # Copy and download dependency using go mod
 COPY go.mod .
 COPY go.sum .
@@ -20,7 +23,7 @@ RUN apk add --no-cache ca-certificates
 # Minimal Prod Image
 FROM scratch
 
-# Copy linkerd-await from linkerd. Copy binary & CA certs from builder.
+# Copy binary & CA certs from builder.
 COPY --from=builder /build/foodbot /foodbot
 COPY --from=certimage /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
