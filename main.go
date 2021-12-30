@@ -237,6 +237,9 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		// Send the message to the channel
 		s.ChannelMessageSend(m.ChannelID, "```"+"Available Meal Categories:\n\n"+strings.Join(mealCategoryList, "\n")+"```")
+
+		// Next case.. If m.content is "food" and an item from MealCategoryList, send a random meal from that category
+
 	}
 
 }
